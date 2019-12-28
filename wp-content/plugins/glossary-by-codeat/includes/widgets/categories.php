@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * Glossary
+ *
+ * @package   Glossary
+ * @author    Codeat <support@codeat.co>
+ * @copyright 2016 GPL 2.0
+ * @license   GPL-2.0
+ * @link      http://codeat.co
+ */
+
+/**
+ * Categories widget
+ */
+class Categories_Glossary_Widget extends WPH_Widget {
+
+    public function __construct() {
+        $args = array(
+	        'label'       => __( 'Glossary Categories', 'glossary-by-codeat' ),
+	        'description' => __( 'List of Glossary Categories', 'glossary-by-codeat' ),
+        );
+
+        $args[ 'fields' ] = array(
+	        array(
+		        'name'     => __( 'Title', 'glossary-by-codeat' ),
+        		'desc'     => __( 'Enter the widget title.', 'glossary-by-codeat' ),
+        		'id'       => 'title',
+        		'type'     => 'text',
+		        'class'    => 'widefat',
+        		'std'      => __( 'Glossary Categories', 'glossary-by-codeat' ),
+		        'validate' => 'alpha_dash',
+        		'filter'   => 'strip_tags|esc_attr',
+	        ),
+        );
+
+		$this->create_widget( $args );
+	}
+
+	public function widget( $args, $instance ) {
+        $out  = $args[ 'before_widget' ];
+        $out .= $args[ 'before_title' ];
+        $out .= $instance[ 'title' ];
+        $out .= $args[ 'after_title' ];
+        $out .= '<div class="widget-glossary-category-list">';
+        $out .= get_glossary_cats_list();
+        $out .= '</div>';
+        $out .= $args[ 'after_widget' ];
+        echo $out;
+    }
+
+}
+
+// Register widget
+if ( !function_exists( 'glossary_categories_register_widget' ) ) {
+
+    function glossary_categories_register_widget() {
+        register_widget( 'Categories_Glossary_Widget' );
+    }
+
+    add_action( 'widgets_init', 'glossary_categories_register_widget', 1 );
+}

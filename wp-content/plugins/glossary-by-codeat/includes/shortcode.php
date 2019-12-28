@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * Glossary
+ *
+ * @package   Glossary
+ * @author    Codeat <support@codeat.co>
+ * @copyright 2016 GPL 2.0+
+ * @license   GPL-2.0+
+ * @link      http://codeat.co
+ */
+add_shortcode( 'glossary-terms', 'glossary_terms_list_shortcode' );
+/**
+ * Shortcode for generate list of glossary terms
+ *
+ * @param array $atts An array with all the parameters.
+ *
+ * @since 1.1.0
+ *
+ * @return array
+ */
+function glossary_terms_list_shortcode( $atts )
+{
+    $atts = shortcode_atts( array(
+        'order' => 'asc',
+        'num'   => '100',
+        'tax'   => '',
+    ), $atts );
+    $key = 'glossary_terms_list-' . get_locale() . '-' . md5( wp_json_encode( $atts ) );
+    $html = get_transient( $key );
+    
+    if ( is_user_logged_in() || $html === false || empty($html) ) {
+        $html = get_glossary_terms_list( $atts['order'], $atts['num'], $atts['tax'] );
+        set_transient( $key, $html, DAY_IN_SECONDS );
+    }
+    
+    return $html;
+}
+
+add_shortcode( 'glossary-cats', 'glossary_cat_list_shortcode' );
+/**
+ * Shortcode for generate list of glossary cat
+ *
+ * @param array $atts An array with all the parameters.
+ *
+ * @since 1.1.0
+ *
+ * @return array
+ */
+function glossary_cat_list_shortcode( $atts )
+{
+    $atts = shortcode_atts( array(
+        'order' => 'ASC',
+        'num'   => '100',
+    ), $atts );
+    return get_glossary_cats_list( $atts['order'], $atts['num'] );
+}
