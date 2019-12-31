@@ -20,6 +20,8 @@
 <link rel="profile" href="http://gmpg.org/xfn/11">
 <link rel="stylesheet" href="<?php bloginfo('style.css'); ?>"
 type="text/css" media="screen, print" />
+<link rel="stylesheet" href="<?php echo get_home_url(); ?>/wp-content/themes/twentyseventeen/assets/css/style.css"
+type="text/css" media="screen, print" />
 <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
 
 <?php wp_head(); ?>
@@ -30,7 +32,7 @@ type="text/css" media="screen, print" />
 	<a class="skip-link screen-reader-text" href="#content"><?php _e( 'Skip to content', 'twentyseventeen' ); ?></a>
 
 	<header id="masthead" class="site-header" role="banner">
-		
+
 		<?php if ( has_nav_menu( 'top' ) ) : ?>
 			<div class="navigation-top">
 				<div class="wrap">
