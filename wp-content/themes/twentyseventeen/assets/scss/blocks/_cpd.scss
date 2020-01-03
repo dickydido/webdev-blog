@@ -1,0 +1,21 @@
+section.cpd-section {
+    li {
+        list-style: none;
+        border-top: 1px solid black;
+        padding: 20px;
+        h3.cpd-title {
+            display: inline-block;
+        }
+        .btn {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border: 1px solid #333;
+            transition: all 0.2s ease;
+            &:hover {
+                background: none;
+                color: #333;
+            }
+        }
+    }
+}

@@ -513,6 +513,16 @@ function twentyseventeen_block_editor_styles() {
 }
 add_action( 'enqueue_block_editor_assets', 'twentyseventeen_block_editor_styles' );
 
+function print_nice($var, $die = false)
+{
+    echo "<pre>";
+    print_r($var);
+    echo "</pre>";
+    if ( $die ) {
+        die();
+    }
+}
+
 /**
  * Add custom image sizes attribute to enhance responsive image functionality
  * for content images.
