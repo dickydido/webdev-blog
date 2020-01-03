@@ -73,7 +73,7 @@ get_header(); ?>
 									<p>length: <?=$days?> days</p>
 								<?php endif; ?>
 							<?php else : ?>
-								<?php if ($end_time) : ?>
+								<?php if ($end_time && strtotime($end_time > $start_time)) : ?>
 									<?php $diff = strtotime($end_time) - strtotime($start_time);
 									$hours = $diff / 3600;
 									if ($hours === 1) : ?>
