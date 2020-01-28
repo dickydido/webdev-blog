@@ -84,7 +84,7 @@ get_header(); ?>
 								<?php endif; ?>
 							<?php endif; ?>
 							<?php if ($cpd_link) : ?>
-								<a href="<?=$cpd_link?>" class="btn">See more</a>
+								<a href="<?=$cpd_link?>" target="_blank" class="btn">See more</a>
 							<?php endif; ?>
 						</li>
 				     <?php endforeach; ?>
