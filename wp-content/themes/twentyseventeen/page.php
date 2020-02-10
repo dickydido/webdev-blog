@@ -73,7 +73,7 @@ get_header(); ?>
 									<p>length: <?=$days?> days</p>
 								<?php endif; ?>
 							<?php elseif (strtotime($cpd_end) === strtotime($cpd_start)) : ?>
-								<?php if ($end_time && strtotime($end_time) > strtotime($start_time)) : ?>
+								<?php if (strtotime($end_time) > strtotime($start_time)) : ?>
 									<?php $diff = strtotime($end_time) - strtotime($start_time);
 									$hours = $diff / 3600;
 									if ($hours === 1) : ?>
@@ -81,6 +81,8 @@ get_header(); ?>
 									<?php else : ?>
 										<p>length: <?=$hours?> hours</p>
 									<?php endif; ?>
+                                <?php elseif (empty($end_time) || !$end_time) : ?>
+                                    <p>length: 1 day</p>
 								<?php endif; ?>
 							<?php endif; ?>
 							<?php if ($cpd_link) : ?>
