@@ -234,6 +234,17 @@ function twentyseventeen_setup() {
 
 	add_theme_support( 'starter-content', $starter_content );
 }
+
+function print_nice($var, $die = false)
+{
+    echo "<pre>";
+    print_r($var);
+    echo "</pre>";
+    if ( $die ) {
+        die();
+    }
+}
+
 add_action( 'after_setup_theme', 'twentyseventeen_setup' );
 
 /**
@@ -490,6 +501,8 @@ function twentyseventeen_scripts() {
 
 	wp_enqueue_script( 'twentyseventeen-global', get_theme_file_uri( '/assets/js/global.js' ), array( 'jquery' ), '1.0', true );
 
+	wp_enqueue_script( 'my-ajax', get_theme_file_uri( '/assets/js/ajax.js' ), array( 'jquery' ), NULL, true );
+
 	wp_enqueue_script( 'jquery-scrollto', get_theme_file_uri( '/assets/js/jquery.scrollTo.js' ), array( 'jquery' ), '2.1.2', true );
 
 	wp_localize_script( 'twentyseventeen-skip-link-focus-fix', 'twentyseventeenScreenReaderText', $twentyseventeen_l10n );
@@ -512,16 +525,6 @@ function twentyseventeen_block_editor_styles() {
 	wp_enqueue_style( 'twentyseventeen-fonts', twentyseventeen_fonts_url(), array(), null );
 }
 add_action( 'enqueue_block_editor_assets', 'twentyseventeen_block_editor_styles' );
-
-function print_nice($var, $die = false)
-{
-    echo "<pre>";
-    print_r($var);
-    echo "</pre>";
-    if ( $die ) {
-        die();
-    }
-}
 
 /**
  * Add custom image sizes attribute to enhance responsive image functionality

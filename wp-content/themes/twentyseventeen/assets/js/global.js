@@ -178,6 +178,8 @@
 	// Fire on document ready.
 	$( document ).ready( function() {
 
+		
+
 		// If navigation menu is present on page, setNavProps and adjustScrollClass.
 		if ( $navigation.length ) {
 			setNavProps();
