@@ -156,7 +156,7 @@ mysqli_free_result($result);
                                     ?>
                                 <?php endforeach; ?>
                                 </ul>
-                                <a href="<?=site_url('results')?>" id="see-results">See Results</a>
+                                <a href="<?=site_url('results')?>" id="see-results" class="btn">See Results</a>
                                 <div id="answers-checker"></div>
                             </div>
                         <?php endif; ?>

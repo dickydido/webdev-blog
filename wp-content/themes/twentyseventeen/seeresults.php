@@ -10,6 +10,12 @@ if ($link->connect_error) {
 
 $sql = "SELECT * FROM wp_players WHERE RoomCode='".$_SESSION['game_roomcode']."'";
 
+if (mysqli_query($link, $sql)) {
+
+} else {
+    echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
+}
+
 $result = mysqli_query($link, $sql);
 $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
