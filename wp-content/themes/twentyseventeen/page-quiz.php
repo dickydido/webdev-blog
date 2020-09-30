@@ -94,7 +94,6 @@
         $sql = "SELECT * FROM wp_game WHERE RoomCode = '".$_SESSION['roomcode']."'";
         $result = mysqli_query($link, $sql);
         $row = mysqli_fetch_assoc($result);
-        // print_nice($row);
         $game_round = $row['Round'];
         $game_q     = $row['Question'];
         // Free result set
@@ -108,17 +107,17 @@
                         <h4>Welcome, <?=$_SESSION['gamer-name']?></h4>
                     </div>
 
-                <?php if ($game_round <= count($quiz_rounds)) : ?>
-                    <?php
-                        $i              = $game_round - 1;
-                        $quiz_round     = $quiz_rounds[$i];
-                        $round_title    = $quiz_round['round_title'];
-                        $questions      = $quiz_round['questions'];
-                    ?>
-                    <div class="col-12 quiz-round">
-                        <h2><?=$round_title?></h2>
-                    </div>
-                    <?php if ($game_q <= count($questions)) : ?>
+                    <?php if ($game_round <= count($quiz_rounds)) : ?>
+                        <?php
+                            $i              = $game_round - 1;
+                            $quiz_round     = $quiz_rounds[$i];
+                            $round_title    = $quiz_round['round_title'];
+                            $questions      = $quiz_round['questions'];
+                        ?>
+                        <div class="col-12 quiz-round">
+                            <h2><?=$round_title?></h2>
+                        </div>
+                        <?php if ($game_q <= count($questions)) : ?>
                         <?php
                             $j              = $game_q - 1;
                             $question       = $questions[$j];
@@ -180,7 +179,7 @@
                         <?php else : ?>
                             <span>End of Round</span>
                             <form action="" method="post">
-                                <input type="submit" name="new-round" id="roundanswer-<?=$game_q?>" value="Next Round" />
+                                <input type="submit" name="new-round" value="Next Round" />
                             </form>
                         <?php endif; ?>
                     <?php endif; ?>

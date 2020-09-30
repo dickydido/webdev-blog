@@ -41,52 +41,84 @@ for ($i = 0; $i < 4; $i++) {
     $random_code .= $characters[rand(0, $characters_length - 1)];
 }
 
-// Sets game room code in a session so it can be accessed from multiple files.
-$_SESSION['game_roomcode'] = $random_code;
+$sql = "SELECT Name FROM wp_players WHERE RoomCode='".$_SESSION['game_roomcode']."'";
 
-echo $_SESSION['game_roomcode'];
+$result = mysqli_query($link, $sql);
 
-$sql = "INSERT INTO wp_game (DateCreated, ID, RoomCode, GameTitle) VALUES ('$date', '$post_id', '$random_code', '$post_title')";
+$players = [];
 
-if (mysqli_query($link, $sql)) {
-    $last_id = mysqli_insert_id($link);
-} else {
-    echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
+if (mysqli_num_rows($result) > 0) {
+    //Store output of each row into array.
+    while($row = mysqli_fetch_assoc($result)) {
+        $players[] = $row['Name'];
+    }
+    mysqli_free_result($result);
 }
-$_SESSION['id'] = $last_id;
 
-mysqli_close($link);
+if ($players) {
+    $players = implode(', ', $players);
+}
 
+$started = true;
+
+// Sets game room code in a session so it can be accessed from multiple files.
+if (!$_SESSION['game_roomcode']) {
+    $_SESSION['game_roomcode'] = $random_code;
+    $sql = "INSERT INTO wp_game (DateCreated, ID, RoomCode, GameTitle) VALUES ('$date', '$post_id', '$random_code', '$post_title')";
+    if (mysqli_query($link, $sql)) {
+        // $last_id = mysqli_insert_id($link);
+    } else {
+        echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
+    }
+    // $_SESSION['game_id'] = $last_id;
+    $started = false;
+}
+
+$sql = "SELECT * FROM wp_game WHERE RoomCode = '".$_SESSION['game_roomcode']."'";
+$result = mysqli_query($link, $sql);
+$row = mysqli_fetch_assoc($result);
+$game_round = $row['Round'];
+$game_q     = $row['Question'];
+// Free result set
+mysqli_free_result($result);
 ?>
 
+<div class="container">
+    <h1><?=$post_title?></h1>
+</div>
 
-<div id="wrapper">
-    <div id="menu">
-        <p id="welcome">Players:</p>
-        <button id="show-players">Update Players</button>
-        <div style="clear:both"></div>
-    </div>
 
-    <section class="quiz <?=$post_title?>">
+<section class="quiz <?=$post_title?> <?=$started ? 'quiz-started' : ''?>">
+    <p id="welcome">Players: <?=$players ? $players : ''?></p>
+    <p>Room code: <?=$_SESSION['game_roomcode']?></p>
+    <button id="show-players">Update Players</button>
+    <button id="start-quiz">Start Quiz</button>
+    <button id="start-new-quiz">Restart Quiz</button>
+    <div style="clear:both"></div>
+    <div class="quiz-question">
         <div class="container">
             <div class="row">
-                <div class="col-12">
-                    <h1><?=$post_title?></h1>
-                </div>
-                <?php foreach ($quiz_rounds as $quiz_round) : ?>
+                <?php if ($game_round <= count($quiz_rounds)) : ?>
                     <?php
+                        $i              = $game_round - 1;
+                        $quiz_round     = $quiz_rounds[$i];
                         $round_title    = $quiz_round['round_title'];
-                        $qcount         = 1;
                         $questions      = $quiz_round['questions'];
                     ?>
                     <div class="col-12 quiz-round">
                         <h2><?=$round_title?></h2>
                     </div>
-                    <?php foreach ($questions as $question) : ?>
+                    <?php if ($game_q <= count($questions)) : ?>
                         <?php
-                            $question_type = $question['question_type'];
-                            $question_text = $question['question_text'];
+                            $j              = $game_q - 1;
+                            $question       = $questions[$j];
+                            $question_type  = $question['question_type'];
+                            $question_text  = $question['question_text'];
+                            $points         = $question['point_value'];
+                            $correct_ans    = $question['correct_answer'];
+
                         ?>
+
                         <?php if ($question_type == 'multiple') : ?>
                             <?php
                                 $answers = [$question['correct_answer']];
@@ -101,12 +133,13 @@ mysqli_close($link);
                                 // $answer_three   = implode(array_splice($answers, rand(0, 1), 1));
                                 // $answer_four    = $answers['0'];
                                 $count = count($answers) - 1;
-                                $i = 0;
+                                $x = 0;
                                 $alpha = ['a', 'b', 'c', 'd', 'e', 'f'];
 
                             ?>
                             <div class="col-12 question-<?=$question_type?>">
-                                <h3>Question <?=$qcount?>. <?=$question_text?></h3>
+                                <h3>Question <?=$game_q?>. <?=$question_text?></h3>
+                                <ul>
 
                                 <?php foreach ($answers as $answer) : ?>
                                     <?php
@@ -116,26 +149,33 @@ mysqli_close($link);
                                             $answer = implode(array_splice($answers, rand(0, $count), 1));
                                         }
                                     ?>
-                                    <input type="radio" id="answer-<?=$alpha[$i]?>" name="round-<?=rcount?>-question-<?=qcount?>" value="<?=$answer?>">
-                                    <label for="answer-<?=$alpha[$i]?>"><?=$answer?></label>
+                                    <li class="answer"><?=$answer?></li>
                                     <?php
                                         $count--;
-                                        $i++;
+                                        $x++;
                                     ?>
                                 <?php endforeach; ?>
+                                </ul>
+                                <a href="<?=site_url('results')?>" id="see-results">See Results</a>
+                                <div id="answers-checker"></div>
                             </div>
                         <?php endif; ?>
-                        <?php $qcount++; ?>
-                    <?php endforeach; ?>
-                    <?php $rcount++; ?>
-                <?php endforeach; ?>
+                    <?php else : ?>
+                        <span>End of Round</span>
+                        <form action="" method="post">
+                            <input type="submit" name="new-round" value="Next Round" />
+                        </form>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
         </div>
-    </section>
-</div>
+    </div>
+</section>
 
 <?php
 
 get_footer();
+
+mysqli_close($link);
 
 ?>

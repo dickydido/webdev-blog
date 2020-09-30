@@ -1,0 +1,19 @@
+.quiz-started {
+    .quiz-question {
+        display: block;
+    }
+    #start-quiz {
+        display: none;
+    }
+    #start-new-quiz {
+        display: inline-block;
+    }
+}
+
+.quiz-question, #start-new-quiz {
+    display: none;
+}
+
+#answers-checker {
+    display: none;
+}

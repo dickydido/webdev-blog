@@ -178,7 +178,12 @@
 	// Fire on document ready.
 	$( document ).ready( function() {
 
-		
+		if ($('#start-quiz')) {
+			$('#start-quiz').click(function (){
+				$('.quiz').addClass('quiz-started');
+			});
+		}
+
 
 		// If navigation menu is present on page, setNavProps and adjustScrollClass.
 		if ( $navigation.length ) {
