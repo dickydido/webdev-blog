@@ -70,7 +70,10 @@ mysqli_free_result($result);
             <?php foreach ($players_info as $player_info) : ?>
                 <?php
                     // Add the correct number of points to any correct answers and insert the total into the database.
-                    if ($player_info['Answer'] == $correct_ans) {
+                    if (!$_SESSION['score_updated'] && $player_info['Answer'] == $correct_ans) {
+                        // Stop the score from being updated every page refresh.
+                        $_SESSION['score_updated'] = true;
+
                         $player_info['Score'] += $points;
 
                         // Update total score in the database.
@@ -91,6 +94,8 @@ mysqli_free_result($result);
             <?php endforeach; ?>
         </tbody>
     </table>
+    <a href="<?=get_permalink($game_id)?>" id="next-question" class="btn">Next Question</a>
+    <div id="next-ajax" class="display-none"></div>
 </div>
 
 <?php

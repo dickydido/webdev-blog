@@ -22,7 +22,7 @@
                 echo '<span class="error">Please enter your name.</span>';
             } elseif ($_POST['roomcode'] == "") {
                 echo '<span class="error">Please enter a room code.</span>';
-            } elseif (!isset($_POST['id']) && mysqli_num_rows($result) != 0) {
+            } elseif (mysqli_num_rows($result) != 0) {
                 echo '<span class="error">Someone with this name is already in this game, please enter a different name.</span>';
                 // Free result set
                 mysqli_free_result($result);
@@ -62,13 +62,14 @@
         ';
     }
 
-    $sql = "SELECT * FROM wp_players WHERE RoomCode = '".$_SESSION['roomcode']."' AND Name = '".$_SESSION['gamer-name']."'";
-    $result = mysqli_query($link, $sql);
+    // $sql = "SELECT * FROM wp_players WHERE RoomCode = '".$_SESSION['roomcode']."' AND Name = '".$_SESSION['gamer-name']."'";
+    // $result = mysqli_query($link, $sql);
+
     if (!$_SESSION['gamer-name']) {
-        mysqli_free_result($result);
+        // mysqli_free_result($result);
         loginform();
     } else {
-        mysqli_free_result($result);
+        // mysqli_free_result($result);
         $date = date('dmY');
         if (!$_SESSION['id']) {
             $sql = "INSERT INTO wp_players (DateCreated, Name, RoomCode) VALUES ($date, '".$_SESSION['gamer-name']."', '".$_SESSION['roomcode']."')";
@@ -105,6 +106,7 @@
                 <div class="row">
                     <div class="col-12">
                         <h4>Welcome, <?=$_SESSION['gamer-name']?></h4>
+                        <button id="restart-player">Restart</button>
                     </div>
 
                     <?php if ($game_round <= count($quiz_rounds)) : ?>
@@ -186,6 +188,7 @@
                 </div>
             </div>
         </section>
+        <div id="ajax-receiver"></div>
 
     <?php
     }

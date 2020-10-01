@@ -41,6 +41,21 @@ for ($i = 0; $i < 4; $i++) {
     $random_code .= $characters[rand(0, $characters_length - 1)];
 }
 
+$started = true;
+
+// Sets game info in a session so it can be accessed from multiple files, then sends info to the database.
+if (!$_SESSION['game_roomcode'] || $_SESSION['game_title'] != $post_title) {
+    $_SESSION['game_roomcode'] = $random_code;
+    $_SESSION['game_title'] = $post_title;
+    $sql = "INSERT INTO wp_game (DateCreated, ID, RoomCode, GameTitle) VALUES ('$date', '$post_id', '$random_code', '$post_title')";
+    if (mysqli_query($link, $sql)) {
+
+    } else {
+        echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
+    }
+    $started = false;
+}
+
 $sql = "SELECT Name FROM wp_players WHERE RoomCode='".$_SESSION['game_roomcode']."'";
 
 $result = mysqli_query($link, $sql);
@@ -57,21 +72,6 @@ if (mysqli_num_rows($result) > 0) {
 
 if ($players) {
     $players = implode(', ', $players);
-}
-
-$started = true;
-
-// Sets game room code in a session so it can be accessed from multiple files.
-if (!$_SESSION['game_roomcode']) {
-    $_SESSION['game_roomcode'] = $random_code;
-    $sql = "INSERT INTO wp_game (DateCreated, ID, RoomCode, GameTitle) VALUES ('$date', '$post_id', '$random_code', '$post_title')";
-    if (mysqli_query($link, $sql)) {
-        // $last_id = mysqli_insert_id($link);
-    } else {
-        echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
-    }
-    // $_SESSION['game_id'] = $last_id;
-    $started = false;
 }
 
 $sql = "SELECT * FROM wp_game WHERE RoomCode = '".$_SESSION['game_roomcode']."'";
@@ -93,7 +93,7 @@ mysqli_free_result($result);
     <p>Room code: <?=$_SESSION['game_roomcode']?></p>
     <button id="show-players">Update Players</button>
     <button id="start-quiz">Start Quiz</button>
-    <button id="start-new-quiz">Restart Quiz</button>
+    <button id="start-new-quiz" class="restart">Restart Quiz</button>
     <div style="clear:both"></div>
     <div class="quiz-question">
         <div class="container">
