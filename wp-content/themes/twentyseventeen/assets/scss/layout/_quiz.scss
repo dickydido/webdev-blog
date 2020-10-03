@@ -18,8 +18,11 @@ section.quiz {
     #answers-checker {
         display: none;
     }
+    #ajax-receiver {
+        display: none;
+    }
 
-    .btn, button {
+    button {
         background-color: #222;
         border: 0;
         border-radius: 2px;
@@ -39,25 +42,23 @@ section.quiz {
             color: white;
         }
     }
-}
 
-.btn {
-    background-color: #222;
-    border: 0;
-    border-radius: 2px;
-    box-shadow: none;
-    color: #fff;
-    cursor: pointer;
-    display: inline-block;
-    font-size: 14px;
-    font-size: 0.875rem;
-    font-weight: 800;
-    line-height: 1;
-    padding: 1em 2em;
-    text-shadow: none;
-    transition: background 0.2s;
-    &:hover {
-        background: #767676;
-        color: white;
+    table {
+        .question-answer {
+            border-bottom: 1px solid;
+            text-align: center;
+            font-size: 22px;
+            padding-top: 0.5em;
+        }
+        tr.correct td.points {
+            background: green;
+        }
+        tr.incorrect td.points {
+            background: red;
+        }
+        caption span {
+            text-decoration: underline;
+            display: block;
+        }
     }
 }

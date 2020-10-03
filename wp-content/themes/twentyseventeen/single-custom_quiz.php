@@ -41,7 +41,6 @@ for ($i = 0; $i < 4; $i++) {
     $random_code .= $characters[rand(0, $characters_length - 1)];
 }
 
-$started = true;
 
 // Sets game info in a session so it can be accessed from multiple files, then sends info to the database.
 if (!$_SESSION['game_roomcode'] || $_SESSION['game_title'] != $post_title) {
@@ -53,7 +52,8 @@ if (!$_SESSION['game_roomcode'] || $_SESSION['game_title'] != $post_title) {
     } else {
         echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
     }
-    $started = false;
+} else {
+    $started = true;
 }
 
 $sql = "SELECT Name FROM wp_players WHERE RoomCode='".$_SESSION['game_roomcode']."'";
@@ -74,13 +74,6 @@ if ($players) {
     $players = implode(', ', $players);
 }
 
-$sql = "SELECT * FROM wp_game WHERE RoomCode = '".$_SESSION['game_roomcode']."'";
-$result = mysqli_query($link, $sql);
-$row = mysqli_fetch_assoc($result);
-$game_round = $row['Round'];
-$game_q     = $row['Question'];
-// Free result set
-mysqli_free_result($result);
 ?>
 
 <div class="container">
@@ -94,78 +87,117 @@ mysqli_free_result($result);
     <button id="show-players">Update Players</button>
     <button id="start-quiz">Start Quiz</button>
     <button id="start-new-quiz" class="restart">Restart Quiz</button>
+    <div id="answers-checker"></div>
     <div style="clear:both"></div>
     <div class="quiz-question">
         <div class="container">
             <div class="row">
-                <?php if ($game_round <= count($quiz_rounds)) : ?>
+                <?php
+                $sql = "SELECT * FROM wp_game WHERE RoomCode = '".$_SESSION['game_roomcode']."'";
+                $result = mysqli_query($link, $sql);
+                if (mysqli_num_rows($result) != 0) {
+                    $game_info      = mysqli_fetch_assoc($result);
+                    $game_round     = $game_info['Round'];
+                    $game_q         = $game_info['Question'];
+                    $i              = $game_round - 1;
+                    $quiz_round     = $quiz_rounds[$i];
+                    $round_title    = $quiz_round['round_title'];
+                    $questions      = $quiz_round['questions'];
+                } else {
+                    echo '<p class="error">This game has expired. Please restart.</p>';
+                }
+                // Free result set
+                mysqli_free_result($result);
+                if (isset($_SESSION['update_question'])) {
+                    unset($_SESSION['update_question']);
+                    if ($game_q == count($questions)) {
+                        if ($game_round != count($quiz_rounds)) {
+                            $game_round++;
+                            $i++;
+                            $game_q = 1;
+
+                            $sql = "UPDATE wp_game SET Round='".$game_round."', Question='".$game_q."' WHERE RoomCode='".$_SESSION['game_roomcode']."'";
+                            if (mysqli_query($link, $sql)) {
+
+                            } else {
+                                echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
+                            }
+                        }
+                    } else {
+                        $game_q++;
+
+                        $sql = "UPDATE wp_game SET Question='".$game_q."' WHERE RoomCode='".$_SESSION['game_roomcode']."'";
+                        if (mysqli_query($link, $sql)) {
+
+                        } else {
+                            echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
+                        }
+
+                        if ($game_q == count($questions)) {
+                            // Set a session to end the game after the final question.
+                            if ($game_round == count($quiz_rounds)) {
+                                $_SESSION['end_game'] = true;
+                            }
+                        }
+                    }
+                }
+
+                // Redeclare variables that may have been updated in the above conditional.
+                $quiz_round     = $quiz_rounds[$i];
+                $round_title    = $quiz_round['round_title'];
+                $questions      = $quiz_round['questions'];
+                ?>
+                <div class="col-12 quiz-round">
+                    <h2>Round <?=$game_round?>. <?=$round_title ? $round_title : ''?></h2>
+                </div>
+                <?php
+                    $j              = $game_q - 1;
+                    $question       = $questions[$j];
+                    $question_type  = $question['question_type'];
+                    $question_text  = $question['question_text'];
+                    $points         = $question['point_value'];
+                    $correct_ans    = $question['correct_answer'];
+                ?>
+
+                <?php if ($question_type == 'multiple') : ?>
                     <?php
-                        $i              = $game_round - 1;
-                        $quiz_round     = $quiz_rounds[$i];
-                        $round_title    = $quiz_round['round_title'];
-                        $questions      = $quiz_round['questions'];
+                        $answers = [$question['correct_answer']];
+                        foreach ($question['wrong_answers'] as $wrong_answer) {
+                            array_push($answers, $wrong_answer['wrong_answer']);
+                        }
+
+
+
+                        // $answer_one     = implode(array_splice($answers, rand(0, 3), 1));
+                        // $answer_two     = implode(array_splice($answers, rand(0, 2), 1));
+                        // $answer_three   = implode(array_splice($answers, rand(0, 1), 1));
+                        // $answer_four    = $answers['0'];
+                        $count = count($answers) - 1;
+                        $x = 0;
+                        $alpha = ['a', 'b', 'c', 'd', 'e', 'f'];
+
                     ?>
-                    <div class="col-12 quiz-round">
-                        <h2><?=$round_title?></h2>
-                    </div>
-                    <?php if ($game_q <= count($questions)) : ?>
-                        <?php
-                            $j              = $game_q - 1;
-                            $question       = $questions[$j];
-                            $question_type  = $question['question_type'];
-                            $question_text  = $question['question_text'];
-                            $points         = $question['point_value'];
-                            $correct_ans    = $question['correct_answer'];
+                    <div class="col-12 question-<?=$question_type?>">
+                        <h3>Question <?=$game_q?>. <?=$question_text?></h3>
+                        <ul>
 
-                        ?>
-
-                        <?php if ($question_type == 'multiple') : ?>
+                        <?php foreach ($answers as $answer) : ?>
                             <?php
-                                $answers = [$question['correct_answer']];
-                                foreach ($question['wrong_answers'] as $wrong_answer) {
-                                    array_push($answers, $wrong_answer['wrong_answer']);
+                                if ($count == 1) {
+                                    $answer = $answers[1];
+                                } else {
+                                    $answer = implode(array_splice($answers, rand(0, $count), 1));
                                 }
-
-
-
-                                // $answer_one     = implode(array_splice($answers, rand(0, 3), 1));
-                                // $answer_two     = implode(array_splice($answers, rand(0, 2), 1));
-                                // $answer_three   = implode(array_splice($answers, rand(0, 1), 1));
-                                // $answer_four    = $answers['0'];
-                                $count = count($answers) - 1;
-                                $x = 0;
-                                $alpha = ['a', 'b', 'c', 'd', 'e', 'f'];
-
                             ?>
-                            <div class="col-12 question-<?=$question_type?>">
-                                <h3>Question <?=$game_q?>. <?=$question_text?></h3>
-                                <ul>
-
-                                <?php foreach ($answers as $answer) : ?>
-                                    <?php
-                                        if ($count == 1) {
-                                            $answer = $answers[1];
-                                        } else {
-                                            $answer = implode(array_splice($answers, rand(0, $count), 1));
-                                        }
-                                    ?>
-                                    <li class="answer"><?=$answer?></li>
-                                    <?php
-                                        $count--;
-                                        $x++;
-                                    ?>
-                                <?php endforeach; ?>
-                                </ul>
-                                <a href="<?=site_url('results')?>" id="see-results" class="btn">See Results</a>
-                                <div id="answers-checker"></div>
-                            </div>
-                        <?php endif; ?>
-                    <?php else : ?>
-                        <span>End of Round</span>
-                        <form action="" method="post">
-                            <input type="submit" name="new-round" value="Next Round" />
-                        </form>
-                    <?php endif; ?>
+                            <li class="answer"><?=$answer?></li>
+                            <?php
+                                $count--;
+                                $x++;
+                            ?>
+                        <?php endforeach; ?>
+                        </ul>
+                        <a href="<?=site_url('results')?>" id="see-results" class="btn">See Results</a>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

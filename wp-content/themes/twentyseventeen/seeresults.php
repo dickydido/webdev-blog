@@ -28,8 +28,9 @@ $finished = 'true';
 foreach($rows as $row) {
     if (!$row['Answer']) {
         mysqli_free_result($result);
-        $finished = 'false';
         echo $finished;
+    } else {
+        $finished = 'true';
     }
 }
 

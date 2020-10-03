@@ -21,7 +21,7 @@ $(document).ready(function() {
         }, 300);
     });
 
-    $('#restart-player').click(function() {
+    $('.restart').click(function() {
         if ($('#answers-checker').length != 0) {
             $('#answers-checker').load("../../wp-content/themes/twentyseventeen/restartquiz.php");
         } else if ($('#ajax-receiver').length != 0) {
@@ -33,11 +33,22 @@ $(document).ready(function() {
 
     $('#next-question').click(function(e) {
         e.preventDefault();
+        if ($('#next-question').html() == 'Play Again?') {
+            $('#next-ajax').load("../wp-content/themes/twentyseventeen/restartquiz.php");
+        }
         $('#next-ajax').load("../wp-content/themes/twentyseventeen/nextquestion.php");
 
         setTimeout( function() {
             window.location = $('#next-question').attr("href");
         }, 300);
     });
+
+    // $('.player-next-question').click(function() {
+    //     $('#ajax-receiver').load("../wp-content/themes/twentyseventeen/playernextquestion.php");
+    //
+    //     setTimeout( function() {
+    //         window.location.reload();
+    //     }, 300);
+    // });
 
 });
