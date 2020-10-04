@@ -5,7 +5,11 @@
     get_header();
     //include_once("/connect-to-db.php");
 
-    $link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+    if (site_url() == 'http://localhost:8888/webdev-blog') {
+        $link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+    } else {
+        $link = mysqli_connect("grh27", "richie_wp1", "S.WBkXfYYziuElP7lmB06", "richie_wp1");
+    }
 
     if (mysqli_connect_errno()) {
         echo "Failed to connect to MYSQL: " . mysqli_connect_error();
@@ -13,7 +17,7 @@
     }
 
     // Remove player database and $_POST data if they hit the restart button.
-    if ($_SESSION['restart']) {
+    if (isset($_SESSION['restart'])) {
         unset($_SESSION['restart']);
         if ($_POST['enter']) {
             $sql = "DELETE FROM wp_players WHERE Name='".$_POST['gamer-name']."' AND RoomCode='".$_POST['roomcode']."'";
@@ -27,9 +31,8 @@
         }
     }
 
-    if (!$_SESSION['gamer_name']) {
+    if (!isset($_SESSION['gamer_name'])) {
         if(isset($_POST['enter'])){
-            echo $_POST['gamer_name'];
             $sql = "SELECT * FROM wp_players WHERE RoomCode = '".$_POST['roomcode']."' AND Name = '".$_POST['gamer-name']."'";
             $result = mysqli_query($link, $sql);
             if ($_POST['gamer-name'] == "" && $_POST['roomcode'] == "") {
@@ -45,16 +48,12 @@
             } else {
                 // Free result set
                 mysqli_free_result($result);
-                $sql = "SELECT RoomCode FROM wp_game";
+                $sql = "SELECT * FROM wp_game WHERE RoomCode='".$_POST['roomcode']."'";
                 $result = mysqli_query($link, $sql);
-                $all_codes = mysqli_fetch_all($result, MYSQLI_ASSOC);
-                foreach ($all_codes as $this_code) {
-                    if ($this_code["RoomCode"] == strtoupper($_POST['roomcode'])) {
-                        $_SESSION['gamer_name'] = stripslashes(htmlspecialchars($_POST['gamer-name']));
-                        $_SESSION['roomcode'] = stripslashes(htmlspecialchars(strtoupper($_POST['roomcode'])));
-                    }
-                }
-                if (!$_SESSION['gamer_name']) {
+                if (mysqli_num_rows($result) != 0) {
+                    $_SESSION['gamer_name'] = stripslashes(htmlspecialchars($_POST['gamer-name']));
+                    $_SESSION['roomcode'] = stripslashes(htmlspecialchars(strtoupper($_POST['roomcode'])));
+                } else {
                     echo '<span class="error">Invalid Room Code.</span>';
                 }
                 // Free result set

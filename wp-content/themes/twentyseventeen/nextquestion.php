@@ -7,7 +7,11 @@ $_SESSION['score_updated'] = false;
 // Set a session to update the questions in the database when the host page is next loaded.
 $_SESSION['update_question'] = true;
 
-$link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+if ($_SESSION['site'] == 'local') {
+    $link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+} else {
+    $link = mysqli_connect("grh27", "richie_wp1", "S.WBkXfYYziuElP7lmB06", "richie_wp1");
+}
 
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MYSQL: " . mysqli_connect_error();

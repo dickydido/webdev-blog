@@ -17,7 +17,13 @@ if (have_posts()) {
     $post_id    = get_the_ID();
 }
 
-$link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+if (site_url() == 'http://localhost:8888/webdev-blog') {
+    $link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+    $_SESSION['site'] = 'local';
+} else {
+    $link = mysqli_connect("grh27", "richie_wp1", "S.WBkXfYYziuElP7lmB06", "richie_wp1");
+}
+
 
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MYSQL: " . mysqli_connect_error();

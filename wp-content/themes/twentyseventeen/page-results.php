@@ -3,7 +3,11 @@ session_start();
 
 get_header();
 
-$link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+if (site_url() == 'http://localhost:8888/webdev-blog') {
+    $link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+} else {
+    $link = mysqli_connect("grh27", "richie_wp1", "S.WBkXfYYziuElP7lmB06", "richie_wp1");
+}
 
 if (mysqli_connect_errno()) {
     echo "Failed to connect to MYSQL: " . mysqli_connect_error();
@@ -47,7 +51,12 @@ if (mysqli_query($link, $sql)) {
 }
 
 $result = mysqli_query($link, $sql);
-$players_info = mysqli_fetch_all($result, MYSQLI_ASSOC);
+if (mysqli_num_rows($result) > 0) {
+    //Store output of each row into array.
+    while($row = mysqli_fetch_assoc($result)) {
+        $players_info[] = $row;
+    }
+}
 
 mysqli_free_result($result);
 
@@ -72,6 +81,8 @@ if (!$_SESSION['score_updated']) {
     }
 }
 
+$players_info = [];
+
 // Grab the players data again and order by the highest score.
 $sql = "SELECT * FROM wp_players WHERE RoomCode='".$_SESSION['game_roomcode']."' ORDER BY Score DESC";
 
@@ -82,7 +93,12 @@ if (mysqli_query($link, $sql)) {
 }
 
 $result = mysqli_query($link, $sql);
-$players_info = mysqli_fetch_all($result, MYSQLI_ASSOC);
+if (mysqli_num_rows($result) > 0) {
+    //Store output of each row into array.
+    while($row = mysqli_fetch_assoc($result)) {
+        $players_info[] = $row;
+    }
+}
 
 mysqli_free_result($result);
 

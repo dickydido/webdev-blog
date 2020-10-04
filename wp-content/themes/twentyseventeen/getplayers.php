@@ -2,10 +2,16 @@
 
 session_start();
 
-$link = new mysqli("localhost", "root", "root", "webdev-blog");
+if ($_SESSION['site'] == 'local') {
+    $link = mysqli_connect("localhost", "root", "root", "webdev-blog");
+} else {
+    $link = mysqli_connect("grh27", "richie_wp1", "S.WBkXfYYziuElP7lmB06", "richie_wp1");
+}
 
-if ($link->connect_error) {
-    exit('Could not connect');
+
+if (mysqli_connect_errno()) {
+    echo "Failed to connect to MYSQL: " . mysqli_connect_error();
+    exit();
 }
 
 $sql = "SELECT Name FROM wp_players WHERE RoomCode='".$_SESSION['game_roomcode']."'";
