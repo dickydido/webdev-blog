@@ -12,8 +12,24 @@
         exit();
     }
 
+    // Remove player database and $_POST data if they hit the restart button.
+    if ($_SESSION['restart']) {
+        unset($_SESSION['restart']);
+        if ($_POST['enter']) {
+            $sql = "DELETE FROM wp_players WHERE Name='".$_POST['gamer-name']."' AND RoomCode='".$_POST['roomcode']."'";
+            if (mysqli_query($link, $sql)) {
+
+            } else {
+                echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
+            }
+
+            $_POST = array();
+        }
+    }
+
     if (!$_SESSION['gamer_name']) {
         if(isset($_POST['enter'])){
+            echo $_POST['gamer_name'];
             $sql = "SELECT * FROM wp_players WHERE RoomCode = '".$_POST['roomcode']."' AND Name = '".$_POST['gamer-name']."'";
             $result = mysqli_query($link, $sql);
             if ($_POST['gamer-name'] == "" && $_POST['roomcode'] == "") {
@@ -112,7 +128,7 @@
                 <div class="row">
                     <div class="col-12">
                         <h4>Welcome, <?=$_SESSION['gamer_name']?></h4>
-                        <button class="restart">Restart</button>
+                        <button class="restart"><?=($game_info['GameEnd'] == 'Ended') ? 'Play Again?' : 'Restart'?></button>
                     </div>
 
                 <?php if ($player_info['Round'] != $game_info['Round'] || $player_info['Question'] != $game_info['Question']) : ?>
@@ -125,10 +141,14 @@
                         }
                     ?>
                 <?php elseif (isset($_SESSION['next_question'])) : ?>
-                    <p class="error">You can't go to the next question until everyone is ready</p>
-                    <form method="post">
-                        <input type="submit" name="next-question" class="player-next-question btn" value="Next Question" />
-                    </form>
+                    <?php if ($game_info['GameEnd'] == 'Ended') : ?>
+                        <h4>No more questions. Look at the host's screen to see the final results!</h4>
+                    <?php else : ?>
+                        <p class="error">You can't go to the next question until the host is ready.</p>
+                        <form method="post">
+                            <input type="submit" name="next-question" class="player-next-question btn" value="Next Question" />
+                        </form>
+                    <?php endif; ?>
                 <?php elseif (isset($_POST['answer'])) : ?>
                     <?php
                         $sql = "UPDATE wp_players SET Answer='".$_POST['answer']."' WHERE ID='".$_SESSION['id']."'";
@@ -139,10 +159,14 @@
                             echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
                         }
                     ?>
-                    <p>Note: You won't be able to go to the next question until everyone is ready</p>
-                    <form method="post">
-                        <input type="submit" name="next-question" class="player-next-question btn" value="Next Question" />
-                    </form>
+                    <?php if ($game_info['GameEnd'] == 'Ended') : ?>
+                        <h4>No more questions. Look at the host's screen to see the final results!</h4>
+                    <?php else : ?>
+                        <p>Note: You won't be able to go to the next question until the host is ready.</p>
+                        <form method="post">
+                            <input type="submit" name="next-question" class="player-next-question btn" value="Next Question" />
+                        </form>
+                    <?php endif; ?>
                 <?php endif; ?>
                 <?php
                     $quiz_rounds    = get_field('quiz_rounds', $game_id);

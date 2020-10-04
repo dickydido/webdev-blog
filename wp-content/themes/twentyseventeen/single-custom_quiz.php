@@ -5,6 +5,10 @@ $quiz_rounds        = get_field('quiz_rounds');
 $rcount             = 1;
 $date               = date('dmY');
 
+if ($_SESSION['restart']) {
+    unset($_SESSION['restart']);
+}
+
 get_header();
 
 if (have_posts()) {
@@ -137,6 +141,12 @@ if ($players) {
                             // Set a session to end the game after the final question.
                             if ($game_round == count($quiz_rounds)) {
                                 $_SESSION['end_game'] = true;
+                                $sql = "UPDATE wp_game SET GameEnd='Ended' WHERE RoomCode='".$_SESSION['game_roomcode']."'";
+                                if (mysqli_query($link, $sql)) {
+
+                                } else {
+                                    echo "\nError: ". $sql . "<br>" . mysqli_error($link) . "\n";
+                                }
                             }
                         }
                     }
